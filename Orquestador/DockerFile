@@ -1,7 +1,11 @@
-FROM microsoft/aspnetcore
+FROM microsoft/aspnetcore-build
 WORKDIR /app
-COPY bin/Debug/netcoreapp2.0/publish/app
-ENV ASPNETCORE_URLS http://*:5000
-EXPOSE 5000
 
-ENTRYPOINT /bin/bash -c "dotnet Orquestador.dll"
+# copy csproj and restore as distinct layers
+COPY *.csproj ./
+RUN dotnet restore
+
+# copy and build everything else
+COPY . ./
+RUN dotnet publish -o out
+ENTRYPOINT ["dotnet", "out/Orquestador.dll"]
